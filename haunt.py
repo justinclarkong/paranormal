@@ -3,7 +3,6 @@
 Haunts the exif data of an image,
 poisoning and anonimizing it with random values to protect against doxing.
 """
-
 from PIL import Image, ExifTags, TiffImagePlugin
 import csv
 import datetime
@@ -38,13 +37,15 @@ if __name__ == "__main__":
 
         exif = img.getexif()
         gps = exif.get_ifd(ExifTags.IFD.GPSInfo)
+
+        # generate GPS and time values from scratch
         gps[ExifTags.GPS.GPSLatitudeRef] = random.choice(["N", "S"])
         gps[ExifTags.GPS.GPSLatitude] = (scramble(0, 90), scramble(0, 60), scramble(0, 60, 2))
         gps[ExifTags.GPS.GPSLongitudeRef] = random.choice(["W", "E"])
         gps[ExifTags.GPS.GPSLongitude] = (scramble(0, 180), scramble(0, 60), scramble(0, 60, 2))
-        gps[ExifTags.GPS.GPSAltitudeRef] = random.choice([b'\x00', b'\x01'])
+        gps[ExifTags.GPS.GPSAltitudeRef] = random.choice([b'\x00', b'\x01']) # above or below sea level
         gps[ExifTags.GPS.GPSAltitude] = scramble(0, 100, 2)
-        gps[ExifTags.GPS.GPSImgDirectionRef] = random.choice(["T", "M"])
+        gps[ExifTags.GPS.GPSImgDirectionRef] = random.choice(["T", "M"]) # true north or magnetic north
         gps[ExifTags.GPS.GPSImgDirection] = scramble(0, 360, 2)
         gps[ExifTags.GPS.GPSDestBearingRef] = gps[ExifTags.GPS.GPSImgDirectionRef]
         gps[ExifTags.GPS.GPSDestBearing] = gps[ExifTags.GPS.GPSImgDirection]
@@ -58,6 +59,7 @@ if __name__ == "__main__":
                 if i.value == k:
                     print(i,v)
 
+        # replace other fields with a random set of existing known values
         with open("data.csv", mode='r', encoding='ISO-8859-1') as f:
             reader = csv.DictReader(f, dialect='unix')
             data = random.choice([r for r in reader])
