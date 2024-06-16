@@ -30,7 +30,7 @@ def warp():
 
 if __name__ == "__main__":
     for fname in sys.argv[1:]:
-        print(f"OoooOOOooOO! Haunting {fname}!")
+        print(f"O{''.join(random.choice(['O', 'o']) for i in range(random.randint(5, 25)))}! Haunting {fname}!")
         img = Image.open(fname)
 
         date = warp()
