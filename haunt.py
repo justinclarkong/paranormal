@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from PIL import Image, ExifTags, TiffImagePlugin
+import csv
 import datetime
 import random
 import math
@@ -17,6 +18,9 @@ def warp():
 fname = sys.argv[1]
 img = Image.open(fname)
 
+date = warp()
+time = (scramble(0, 24), scramble(0, 60), scramble(0, 60))
+
 exif = img.getexif()
 gps = exif.get_ifd(ExifTags.IFD.GPSInfo)
 gps[ExifTags.GPS.GPSLatitudeRef] = random.choice(["N", "S"])
@@ -29,19 +33,27 @@ gps[ExifTags.GPS.GPSImgDirectionRef] = random.choice(["T", "M"])
 gps[ExifTags.GPS.GPSImgDirection] = scramble(0, 360, 2)
 gps[ExifTags.GPS.GPSDestBearingRef] = gps[ExifTags.GPS.GPSImgDirectionRef]
 gps[ExifTags.GPS.GPSDestBearing] = gps[ExifTags.GPS.GPSImgDirection]
-gps[ExifTags.GPS.GPSTimeStamp] = (scramble(0, 24), scramble(0, 60), scramble(0, 60))
-gps[ExifTags.GPS.GPSDateStamp] = warp()
+gps[ExifTags.GPS.GPSTimeStamp] = time
+gps[ExifTags.GPS.GPSDateStamp] = date
 gps[ExifTags.GPS.GPSHPositioningError] = scramble(0, 50, 2)
-
-print(gps)
-print(exif)
+exif[ExifTags.Base.DateTime.value] = "%s %02d:%02d:%02d" % (date, *time)
 
 for k, v in gps.items():
     for i in ExifTags.GPS:
         if i.value == k:
             print(i,v)
 
+with open("data.csv", mode='r', encoding='ISO-8859-1') as f:
+    reader = csv.DictReader(f, dialect='unix')
+    data = random.choice([r for r in reader])
+    for k, v in data.items():
+        _k = ExifTags.Base[k].value
+        if v != "":
+            exif[_k] = v
+        elif _k in exif:
+            del exif[_k]
+
 for k, v in exif.items():
-    print(f"Tag: {ExifTags.TAGS[k]}, Value: {v}")
+    print(f"{ExifTags.TAGS[k]}: {v}")
 
 img.save(f"_{fname}", exif=exif)
