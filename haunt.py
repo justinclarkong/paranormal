@@ -17,7 +17,6 @@ def scramble(a, b, c=0):
     """
     return TiffImagePlugin.IFDRational(round(random.uniform(a, b), c))
 
-# time travel! generates a random date stamp
 def warp():
     """
     Time travel! Returns a random date stamp.
