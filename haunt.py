@@ -36,10 +36,14 @@ if __name__ == "__main__":
         _datetime = "%s %02d:%02d:%02d" % (date, *time)
 
         exif = img.getexif()
-        gps = exif.get_ifd(ExifTags.IFD.GPSInfo)
         exif2 = exif.get_ifd(ExifTags.IFD.Exif)
+        gps = exif.get_ifd(ExifTags.IFD.GPSInfo)
 
-        # generate GPS and time values from scratch
+        # generate time and GPS values from scratch
+        exif[ExifTags.Base.DateTime.value] = _datetime
+        exif2[ExifTags.Base.DateTimeOriginal.value] = _datetime
+        exif2[ExifTags.Base.DateTimeDigitized.value] = _datetime
+
         gps[ExifTags.GPS.GPSLatitudeRef] = random.choice(["N", "S"])
         gps[ExifTags.GPS.GPSLatitude] = (scramble(0, 90), scramble(0, 60), scramble(0, 60, 2))
         gps[ExifTags.GPS.GPSLongitudeRef] = random.choice(["W", "E"])
@@ -53,10 +57,6 @@ if __name__ == "__main__":
         gps[ExifTags.GPS.GPSTimeStamp] = time
         gps[ExifTags.GPS.GPSDateStamp] = date
         gps[ExifTags.GPS.GPSHPositioningError] = scramble(0, 50, 2)
-
-        exif[ExifTags.Base.DateTime.value] = _datetime
-        exif2[ExifTags.Base.DateTimeOriginal.value] = _datetime
-        exif2[ExifTags.Base.DateTimeDigitized.value] = _datetime
 
         if ExifTags.Base.MakerNote in exif2:
             del exif2[ExifTags.Base.MakerNote]
