@@ -31,15 +31,15 @@ if __name__ == "__main__":
         print(f"O{''.join(random.choice(['O', 'o']) for i in range(random.randint(5, 25)))}! Haunting {fname}!")
         img = Image.open(fname)
 
-        date = warp()
-        time = (scramble(0, 24), scramble(0, 60), scramble(0, 60))
-        _datetime = "%s %02d:%02d:%02d" % (date, *time)
-
         exif = img.getexif()
         exif2 = exif.get_ifd(ExifTags.IFD.Exif)
         gps = exif.get_ifd(ExifTags.IFD.GPSInfo)
 
         # generate time and GPS values from scratch
+        date = warp()
+        time = (scramble(0, 24), scramble(0, 60), scramble(0, 60))
+        _datetime = "%s %02d:%02d:%02d" % (date, *time)
+
         exif[ExifTags.Base.DateTime.value] = _datetime
         exif2[ExifTags.Base.DateTimeOriginal.value] = _datetime
         exif2[ExifTags.Base.DateTimeDigitized.value] = _datetime
@@ -58,19 +58,10 @@ if __name__ == "__main__":
         gps[ExifTags.GPS.GPSDateStamp] = date
         gps[ExifTags.GPS.GPSHPositioningError] = scramble(0, 50, 2)
 
+        # drop MakerNote completely because it contains
+        # a significant amount of identifying information
         if ExifTags.Base.MakerNote in exif2:
             del exif2[ExifTags.Base.MakerNote]
-
-        for k, v in exif2.items():
-            for i in ExifTags.Base:
-                if i.value == k:
-                    print(i,v)
-
-
-        for k, v in gps.items():
-            for i in ExifTags.GPS:
-                if i.value == k:
-                    print(i,v)
 
         # replace other fields with a random set of existing known values
         with open("data.csv", mode='r', encoding='ISO-8859-1') as f:
@@ -79,11 +70,19 @@ if __name__ == "__main__":
             for k, v in data.items():
                 _k = ExifTags.Base[k].value
                 if v != "":
-                    exif[_k] = v
-                elif _k in exif:
-                    del exif[_k]
+                    exif2[_k] = v
+                elif _k in exif2:
+                    del exif2[_k]
 
-        for k, v in exif.items():
-            print(f"{ExifTags.TAGS[k]}: {v}")
+        # printouts for inspection by the user
+        for k, v in gps.items():
+            for i in ExifTags.GPS:
+                if i.value == k:
+                    print(i,v)
+
+        for k, v in exif2.items():
+            for i in ExifTags.Base:
+                if i.value == k:
+                    print(i,v)
 
         img.save(f"_{fname}", exif=exif)
