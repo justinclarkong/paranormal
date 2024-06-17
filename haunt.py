@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Haunts the exif data of an image,
-poisoning and anonimizing it with random values to protect against doxing.
+poisoning and anonymizing it with random values to protect against doxing.
 """
 from PIL import Image, ExifTags, TiffImagePlugin
 import csv
