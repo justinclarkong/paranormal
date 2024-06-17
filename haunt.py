@@ -21,7 +21,7 @@ def warp():
     """
     Time travel! Returns a random date stamp.
     """
-    a = datetime.datetime(1970, 1, 1)
+    a = datetime.datetime(2020, 1, 1)
     b = datetime.datetime.now()
     c = b - a
     return (a + datetime.timedelta(random.randrange(c.days))).strftime("%Y:%m:%d")
@@ -33,9 +33,11 @@ if __name__ == "__main__":
 
         date = warp()
         time = (scramble(0, 24), scramble(0, 60), scramble(0, 60))
+        _datetime = "%s %02d:%02d:%02d" % (date, *time)
 
         exif = img.getexif()
         gps = exif.get_ifd(ExifTags.IFD.GPSInfo)
+        exif2 = exif.get_ifd(ExifTags.IFD.Exif)
 
         # generate GPS and time values from scratch
         gps[ExifTags.GPS.GPSLatitudeRef] = random.choice(["N", "S"])
@@ -51,7 +53,19 @@ if __name__ == "__main__":
         gps[ExifTags.GPS.GPSTimeStamp] = time
         gps[ExifTags.GPS.GPSDateStamp] = date
         gps[ExifTags.GPS.GPSHPositioningError] = scramble(0, 50, 2)
-        exif[ExifTags.Base.DateTime.value] = "%s %02d:%02d:%02d" % (date, *time)
+
+        exif[ExifTags.Base.DateTime.value] = _datetime
+        exif2[ExifTags.Base.DateTimeOriginal.value] = _datetime
+        exif2[ExifTags.Base.DateTimeDigitized.value] = _datetime
+
+        if ExifTags.Base.MakerNote in exif2:
+            del exif2[ExifTags.Base.MakerNote]
+
+        for k, v in exif2.items():
+            for i in ExifTags.Base:
+                if i.value == k:
+                    print(i,v)
+
 
         for k, v in gps.items():
             for i in ExifTags.GPS:
