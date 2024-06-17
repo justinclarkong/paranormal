@@ -70,9 +70,13 @@ if __name__ == "__main__":
             for k, v in data.items():
                 _k = ExifTags.Base[k].value
                 if v != "":
+                    exif[_k] = v
                     exif2[_k] = v
-                elif _k in exif2:
-                    del exif2[_k]
+                else:
+                    if _k in exif:
+                        del exif[_k]
+                    if _k in exif2:
+                        del exif2[_k]
 
         # printouts for inspection by the user
         for k, v in gps.items():
@@ -84,5 +88,8 @@ if __name__ == "__main__":
             for i in ExifTags.Base:
                 if i.value == k:
                     print(i,v)
+
+        for k, v in exif.items():
+            print(f"{ExifTags.TAGS[k]}: {v}")
 
         img.save(f"_{fname}", exif=exif)
