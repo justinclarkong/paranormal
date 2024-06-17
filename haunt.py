@@ -37,7 +37,7 @@ if __name__ == "__main__":
 
         # generate time and GPS values from scratch
         date = warp()
-        time = (scramble(0, 24), scramble(0, 60), scramble(0, 60))
+        time = (scramble(0, 23), scramble(0, 59), scramble(0, 59))
         _datetime = "%s %02d:%02d:%02d" % (date, *time)
 
         exif[ExifTags.Base.DateTime.value] = _datetime
@@ -45,9 +45,9 @@ if __name__ == "__main__":
         exif2[ExifTags.Base.DateTimeDigitized.value] = _datetime
 
         gps[ExifTags.GPS.GPSLatitudeRef] = random.choice(["N", "S"])
-        gps[ExifTags.GPS.GPSLatitude] = (scramble(0, 90), scramble(0, 60), scramble(0, 60, 2))
+        gps[ExifTags.GPS.GPSLatitude] = (scramble(0, 90), scramble(0, 59), scramble(0, 59, 2))
         gps[ExifTags.GPS.GPSLongitudeRef] = random.choice(["W", "E"])
-        gps[ExifTags.GPS.GPSLongitude] = (scramble(0, 180), scramble(0, 60), scramble(0, 60, 2))
+        gps[ExifTags.GPS.GPSLongitude] = (scramble(0, 180), scramble(0, 59), scramble(0, 59, 2))
         gps[ExifTags.GPS.GPSAltitudeRef] = random.choice([b'\x00', b'\x01']) # above or below sea level
         gps[ExifTags.GPS.GPSAltitude] = scramble(0, 100, 2)
         gps[ExifTags.GPS.GPSImgDirectionRef] = random.choice(["T", "M"]) # true north or magnetic north
