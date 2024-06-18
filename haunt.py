@@ -82,14 +82,15 @@ if __name__ == "__main__":
         for k, v in gps.items():
             for i in ExifTags.GPS:
                 if i.value == k:
-                    print(i,v)
+                    print(i, v)
 
         for k, v in exif2.items():
             for i in ExifTags.Base:
                 if i.value == k:
-                    print(i,v)
+                    print(i, v)
 
         for k, v in exif.items():
-            print(f"{ExifTags.TAGS[k]}: {v}")
+            if k in ExifTags.TAGS:
+                print(f"{ExifTags.TAGS[k]}: {v}")
 
         img.save(f"_{fname}", exif=exif)
